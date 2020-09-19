@@ -1,5 +1,5 @@
 {
-  "name": "class5-live",
+  "name": "geralds_contracting_part3",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -18,7 +18,7 @@
     "build:compile": "tsc",
     "start:dev:notest": "npm run build:compile && node dist/index.js"
   },
-  "author": "Bradley Holbrook",
+  "author": "khatab AL-DAGHISTANI",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^14.10.3",
