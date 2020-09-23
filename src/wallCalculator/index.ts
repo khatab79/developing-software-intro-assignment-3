@@ -1,3 +1,5 @@
+import { string } from "yargs";
+
 const BEAM_WIDTH = 3.5;
 const BOARD_LENGTH = 8 * 12;
 const WASTE_MULTIPLIER = 0.1;
@@ -17,7 +19,7 @@ function convertFeetToInches(feet: number) {
 function getPlatesInLength(inches: number) {
     // devide the length by 96 inches (8 feet) and round up
     // multiply by two because we're doing the top and bottom in one calculation
-    return Math.ceil(inches / BOARD_LENGTH) * 2;
+    return Math.ceil(inches / BOARD_LENGTH)* 2;
 }
 
 function getStudsInLength(inches: number) {
@@ -28,14 +30,17 @@ function getStudsInLength(inches: number) {
     // make sure we add an end piece if we have a perfect multiple of 16
     const isNotPerfectWidth = Math.min(inches % STUDS_OFFSET, 1);
     const perfectWidthExtension = isNotPerfectWidth * -1 + 1;
-    return studs + perfectWidthExtension;
+    return studs + perfectWidthExtension  ;
 }
 
-function getBoardsInLength(inches: number): number {
+function getBoardsInLength(inches: number) {
     const plates = getPlatesInLength(inches);
     const studs = getStudsInLength(inches);
 
-    return plates + studs;
+    return {
+        plates:plates, 
+         studs:studs
+    };
 }
 
 function getRequiredBeamsInLength(inches: number) {
@@ -110,20 +115,25 @@ function getLastSectionSize(inches: number, beams: number) {
     return lastSectionSize;
 }
 
-function buildWall(inches: number) {
+export function buildWall(inches: number) {
     // get required beams
     const requiredBeams = getRequiredBeamsInLength(inches);
     const fullSections = getFullSections(inches, requiredBeams);
     const lastSectionSize = getLastSectionSize(inches, requiredBeams);
     const studs =
-        getBoardsInLength(FULL_BOARD_SECTION_SIZE) * fullSections +
-        getBoardsInLength(lastSectionSize);
+        getBoardsInLength(FULL_BOARD_SECTION_SIZE).studs * fullSections +
+        getBoardsInLength(lastSectionSize).studs;
+
+    const plates = 
+        getBoardsInLength(FULL_BOARD_SECTION_SIZE).plates * fullSections +
+        getBoardsInLength(lastSectionSize).plates;
 
     return {
         function: "buildWall",
         inches,
         studs: studs,
         beams: requiredBeams,
+        plates: plates,
     };
 }
 
@@ -132,13 +142,74 @@ function accountForWaste(items: number): number {
     return waste + items;
 }
 
+// **************************************
+//to check if the Geralds number by unites or not and return a true flag for unites
+function isUnites(length:String){
+
+    let isItUnites:boolean = false;
+
+    length.includes("ft") && length.includes("in")? isItUnites = true: isItUnites = false;
+   
+    console.log(isItUnites)
+
+return isItUnites;
+}
+
+//to get inches and feet from geralds house dimensions
+function splitFeetInches(aliceFeet:string, aliceInches:string, length:string){
+
+    let lengthInfeet = length.split(aliceFeet)[0];
+
+    let lengthInInches = length.split(aliceFeet)[1];
+    lengthInInches = lengthInInches.split(aliceInches)[0];
+
+  return{
+      inches:lengthInInches,
+      feet:lengthInfeet          
+  }  
+}
+
+//return the length in inches
+//example: 6ft5in => 77 in
+function returnInIches(length:number) {
+    
+    let totalLengthInInches = 0;
+    //to have only lower case for unites check flag
+    // length = length.toLowerCase(); 
+
+  
+    // if (isUnites(length)){
+    //     //in case the dimensions by inches and feet
+    //     let lengthInfeet = splitFeetInches("ft","in",String(length)).feet;
+
+    //     let lengthInInches = splitFeetInches("ft","in",String(length)).inches;
+        
+
+    //     totalLengthInInches = Number( lengthInfeet) * 12 +  Number(lengthInInches);
+    //     console.log(lengthInInches, lengthInfeet);
+        
+    // }else{
+    //     //in case without unites 
+    //     totalLengthInInches = Number( length ) * 12;
+    // }
+    // console.log(totalLengthInInches);
+    // return totalLengthInInches; 
+}
+
+// *********************************************
+
 export function calculateHouseRequirements(
     widthInFeet: number,
     lengthInFeet: number
 ) {
-    // convert feet to inches
+    
+    // // convert feet to inches
     const outerWidthOfHouse = convertFeetToInches(widthInFeet);
     const outerLengthOfHouse = convertFeetToInches(lengthInFeet);
+
+    //   const outerWidthOfHouse = returnInIches(widthInFeet);
+    //   const outerLengthOfHouse = returnInIches(lengthInFeet);
+
 
     // calculate the space inbetween corner beams
     const innerWidthOfHouse = outerWidthOfHouse - BEAM_WIDTH * 2;
@@ -149,9 +220,11 @@ export function calculateHouseRequirements(
 
     const studs = accountForWaste((wall1.studs + wall2.studs) * 2);
     const beams = accountForWaste((wall1.beams + wall2.beams) * 2 + 4);
+    const plates = accountForWaste((wall1.plates + wall2.plates) * 2);
 
     return {
         studs: studs,
-        beams: beams,
+        posts: beams,
+        plates:plates,
     };
 }
