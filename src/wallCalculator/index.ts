@@ -142,29 +142,29 @@ function accountForWaste(items: number): number {
     return waste + items;
 }
 
-
+//adding unit flag ('inches') to the function
+//so this function calculate in inches or feet.
+//the result are total of studs, posts, plates
 export function calculateHouseRequirements(
     widthInFeet: number,
     lengthInFeet: number,
-    inches: boolean
+    inches: boolean //unites flag
 ) {
+    
     let outerWidthOfHouse = 0;
     let outerLengthOfHouse = 0;
-        if(inches){
-            console.log("inches")
-            outerWidthOfHouse = widthInFeet;
-            outerLengthOfHouse = lengthInFeet;
-        }
-        else{
-            outerWidthOfHouse = convertFeetToInches(widthInFeet);
-            outerLengthOfHouse = convertFeetToInches(lengthInFeet);
-        }
-       
-    
 
-    //   const outerWidthOfHouse = returnInIches(widthInFeet);
-    //   const outerLengthOfHouse = returnInIches(lengthInFeet);
-
+    //choise the calculation in inches or in feet
+    //then continue the same steps
+    if(inches){
+        console.log("inches")
+        outerWidthOfHouse = widthInFeet;
+        outerLengthOfHouse = lengthInFeet;
+    }
+    else{
+        outerWidthOfHouse = convertFeetToInches(widthInFeet);
+        outerLengthOfHouse = convertFeetToInches(lengthInFeet);
+    }
 
     // calculate the space inbetween corner beams
     const innerWidthOfHouse = outerWidthOfHouse - BEAM_WIDTH * 2;
@@ -183,59 +183,3 @@ export function calculateHouseRequirements(
         plates:plates,
     };
 }
-
-// // **************************************
-// //to check if the Geralds number by unites or not and return a true flag for unites
-// function isUnites(length:String){
-
-//     let isItUnites:boolean = false;
-
-//     length.includes("ft") && length.includes("in")? isItUnites = true: isItUnites = false;
-   
-//     console.log(isItUnites)
-
-// return isItUnites;
-// }
-
-// //to get inches and feet from geralds house dimensions
-// function splitFeetInches(aliceFeet:string, aliceInches:string, length:string){
-
-//     let lengthInfeet = length.split(aliceFeet)[0];
-
-//     let lengthInInches = length.split(aliceFeet)[1];
-//     lengthInInches = lengthInInches.split(aliceInches)[0];
-
-//   return{
-//       inches:lengthInInches,
-//       feet:lengthInfeet          
-//   }  
-// }
-
-// //return the length in inches
-// //example: 6ft5in => 77 in
-// function returnInIches(length:number) {
-    
-//     let totalLengthInInches = 0;
-//     //to have only lower case for unites check flag
-//     // length = length.toLowerCase(); 
-
-  
-//     // if (isUnites(length)){
-//     //     //in case the dimensions by inches and feet
-//     //     let lengthInfeet = splitFeetInches("ft","in",String(length)).feet;
-
-//     //     let lengthInInches = splitFeetInches("ft","in",String(length)).inches;
-        
-
-//     //     totalLengthInInches = Number( lengthInfeet) * 12 +  Number(lengthInInches);
-//     //     console.log(lengthInInches, lengthInfeet);
-        
-//     // }else{
-//     //     //in case without unites 
-//     //     totalLengthInInches = Number( length ) * 12;
-//     // }
-//     // console.log(totalLengthInInches);
-//     // return totalLengthInInches; 
-// }
-
-// *********************************************
