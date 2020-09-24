@@ -20,7 +20,8 @@ export class MyHouse extends Houses {
             plates: x.plates,
         };
     };
-       
-
-
 }
+
+const house  = new MyHouse();
+// const khatab = house.create()
+console.log(house);
