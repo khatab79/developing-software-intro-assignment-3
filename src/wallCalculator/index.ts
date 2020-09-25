@@ -1,3 +1,8 @@
+//imports
+import { Houses } from '../house/houses'
+import { IHouse, IHouseProperties, IWallCalculatorResponse } from "../house/interface";
+
+//constants variables
 const BEAM_WIDTH = 3.5;
 const BOARD_LENGTH = 8 * 12;
 const WASTE_MULTIPLIER = 0.1;
@@ -17,7 +22,7 @@ function convertFeetToInches(feet: number) {
 function getPlatesInLength(inches: number) {
     // devide the length by 96 inches (8 feet) and round up
     // multiply by two because we're doing the top and bottom in one calculation
-    return Math.ceil(inches / BOARD_LENGTH) * 2;
+    return Math.ceil(inches / BOARD_LENGTH)* 2;
 }
 
 function getStudsInLength(inches: number) {
@@ -28,14 +33,17 @@ function getStudsInLength(inches: number) {
     // make sure we add an end piece if we have a perfect multiple of 16
     const isNotPerfectWidth = Math.min(inches % STUDS_OFFSET, 1);
     const perfectWidthExtension = isNotPerfectWidth * -1 + 1;
-    return studs + perfectWidthExtension;
+    return studs + perfectWidthExtension  ;
 }
 
-function getBoardsInLength(inches: number): number {
+function getBoardsInLength(inches: number) {
     const plates = getPlatesInLength(inches);
     const studs = getStudsInLength(inches);
 
-    return plates + studs;
+    return {
+        plates:plates, 
+         studs:studs
+    };
 }
 
 function getRequiredBeamsInLength(inches: number) {
@@ -110,20 +118,25 @@ function getLastSectionSize(inches: number, beams: number) {
     return lastSectionSize;
 }
 
-function buildWall(inches: number) {
+export function buildWall(inches: number) {
     // get required beams
     const requiredBeams = getRequiredBeamsInLength(inches);
     const fullSections = getFullSections(inches, requiredBeams);
     const lastSectionSize = getLastSectionSize(inches, requiredBeams);
     const studs =
-        getBoardsInLength(FULL_BOARD_SECTION_SIZE) * fullSections +
-        getBoardsInLength(lastSectionSize);
+        getBoardsInLength(FULL_BOARD_SECTION_SIZE).studs * fullSections +
+        getBoardsInLength(lastSectionSize).studs;
+
+    const plates = 
+        getBoardsInLength(FULL_BOARD_SECTION_SIZE).plates * fullSections +
+        getBoardsInLength(lastSectionSize).plates;
 
     return {
         function: "buildWall",
         inches,
         studs: studs,
-        beams: requiredBeams,
+        posts: requiredBeams,
+        plates: plates,
     };
 }
 
@@ -132,14 +145,29 @@ function accountForWaste(items: number): number {
     return waste + items;
 }
 
+//adding unit flag ('inches') to the function
+//so this function calculate in inches or feet.
+//the result are total of studs, posts, plates
 export function calculateHouseRequirements(
     widthInFeet: number,
-    lengthInFeet: number
+    lengthInFeet: number,
+    inches: boolean, //unites flag
 ) {
-    // convert feet to inches
-    const outerWidthOfHouse = convertFeetToInches(widthInFeet);
-    const outerLengthOfHouse = convertFeetToInches(lengthInFeet);
+    
+    let outerWidthOfHouse = 0;
+    let outerLengthOfHouse = 0;
 
+    //choise the calculation in inches or in feet
+    //then continue the same steps
+    if(inches){
+        outerWidthOfHouse = widthInFeet;
+        outerLengthOfHouse = lengthInFeet;
+    }
+    else{
+        outerWidthOfHouse = convertFeetToInches(widthInFeet);
+        outerLengthOfHouse = convertFeetToInches(lengthInFeet);
+    }
+    
     // calculate the space inbetween corner beams
     const innerWidthOfHouse = outerWidthOfHouse - BEAM_WIDTH * 2;
     const innerLengthOfHouse = outerLengthOfHouse - BEAM_WIDTH * 2;
@@ -147,11 +175,13 @@ export function calculateHouseRequirements(
     const wall1 = buildWall(innerWidthOfHouse);
     const wall2 = buildWall(innerLengthOfHouse);
 
-    const studs = accountForWaste((wall1.studs + wall2.studs) * 2);
-    const beams = accountForWaste((wall1.beams + wall2.beams) * 2 + 4);
+    const studs  = accountForWaste((wall1.studs + wall2.studs) * 2);
+    const posts  = accountForWaste((wall1.posts + wall2.posts) * 2 + 4);
+    const plates = accountForWaste((wall1.plates + wall2.plates) * 2);
 
     return {
         studs: studs,
-        beams: beams,
+        posts: posts,
+        plates:plates,
     };
 }
