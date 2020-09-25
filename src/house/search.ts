@@ -41,11 +41,11 @@ export function findByName( search:string ){
 
     // find the house by customer name or return error msg 
     if(!savedHouses.get( search )){
-        return `${search}, not in the list. Pls check it and try again! or new calculation`;
+        return `${search}, is not in the list. Pls check it and try again! or new calculation`;
 
     } else{
         //recall the house dimensions
-        console.log(`${search} is in the customer list, check it below`)
+        console.log(`${search}, is in the customer list, check it below`)
         let houses = [...savedHouses.values()];
         let customerHouse = houses.find( (element: any)  => element.name === search );
         return customerHouse;

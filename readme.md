@@ -20,7 +20,7 @@ Advanced Certificate of Software Development located in Kelowna, BC and Surrey, 
 
 To **build** the application
 ```
-tsc
+tsc 
 ```
 To **run** the application using node
 ```
