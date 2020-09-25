@@ -1,5 +1,8 @@
-import { string } from "yargs";
+//imports
+import { Houses } from '../house/houses'
+import { IHouse, IHouseProperties, IWallCalculatorResponse } from "../house/interface";
 
+//constants variables
 const BEAM_WIDTH = 3.5;
 const BOARD_LENGTH = 8 * 12;
 const WASTE_MULTIPLIER = 0.1;
@@ -132,7 +135,7 @@ export function buildWall(inches: number) {
         function: "buildWall",
         inches,
         studs: studs,
-        beams: requiredBeams,
+        posts: requiredBeams,
         plates: plates,
     };
 }
@@ -148,7 +151,7 @@ function accountForWaste(items: number): number {
 export function calculateHouseRequirements(
     widthInFeet: number,
     lengthInFeet: number,
-    inches: boolean //unites flag
+    inches: boolean, //unites flag
 ) {
     
     let outerWidthOfHouse = 0;
@@ -157,7 +160,6 @@ export function calculateHouseRequirements(
     //choise the calculation in inches or in feet
     //then continue the same steps
     if(inches){
-        console.log("inches")
         outerWidthOfHouse = widthInFeet;
         outerLengthOfHouse = lengthInFeet;
     }
@@ -165,7 +167,7 @@ export function calculateHouseRequirements(
         outerWidthOfHouse = convertFeetToInches(widthInFeet);
         outerLengthOfHouse = convertFeetToInches(lengthInFeet);
     }
-
+    
     // calculate the space inbetween corner beams
     const innerWidthOfHouse = outerWidthOfHouse - BEAM_WIDTH * 2;
     const innerLengthOfHouse = outerLengthOfHouse - BEAM_WIDTH * 2;
@@ -173,13 +175,13 @@ export function calculateHouseRequirements(
     const wall1 = buildWall(innerWidthOfHouse);
     const wall2 = buildWall(innerLengthOfHouse);
 
-    const studs = accountForWaste((wall1.studs + wall2.studs) * 2);
-    const beams = accountForWaste((wall1.beams + wall2.beams) * 2 + 4);
+    const studs  = accountForWaste((wall1.studs + wall2.studs) * 2);
+    const posts  = accountForWaste((wall1.posts + wall2.posts) * 2 + 4);
     const plates = accountForWaste((wall1.plates + wall2.plates) * 2);
 
     return {
         studs: studs,
-        posts: beams,
+        posts: posts,
         plates:plates,
     };
 }
