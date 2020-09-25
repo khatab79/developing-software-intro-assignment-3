@@ -34,9 +34,15 @@ you can chose feet or inches
 
 *_By default the calculation in feet_*
 
+
+To **search by name ** use this call
+```
+npm start -- find-customer-by-name  --name Khatab
+```
+*_The search is sensitive to upper and lower case_*
+
+
 ---
-
-
 
 ## Scenario
 
